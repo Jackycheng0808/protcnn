@@ -1,0 +1,7 @@
+__pycache__/
+.ipynb_checkpoints/
+*.DS_Store
+*.pth
+random_split/*
+archive.zip
+output/*
