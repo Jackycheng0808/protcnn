@@ -5,3 +5,6 @@ __pycache__/
 random_split/*
 archive.zip
 output/*
+ml-pipeline-refactoring.ipynb
+MLPipelineRefactoring.html
+MLPipelineRefactoring.pdf
