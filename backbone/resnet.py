@@ -1,8 +1,8 @@
 import torch
 import torch.nn.functional as F
 
-from backbone.layers.residual_block import ResidualBlock
-from backbone.layers.residual_se_block import ResidualSEBlock
+from .layers.residual_block import ResidualBlock
+from .layers.residual_se_block import ResidualSEBlock
 
 
 class Lambda(torch.nn.Module):

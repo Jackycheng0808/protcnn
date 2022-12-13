@@ -191,7 +191,7 @@ def validate(model, data_loader, crit, epoch, args, device):
         x, y = x.to(device), y.to(device)
         y_hat = model(x)
         loss = crit(y_hat, y)
-        loss_sum += loss.item()
+        loss_sum += loss
 
         pred = torch.argmax(y_hat, dim=1)
         valid_acc = torchmetrics.Accuracy().to(device)
@@ -199,13 +199,11 @@ def validate(model, data_loader, crit, epoch, args, device):
         acc_sum += acc.item()
 
     # Calculate valid loss / acc per batch
-    valid_loss_mean = loss_sum / iter
-    valid_acc_mean = acc_sum / iter
+    valid_acc = acc_sum / (iter)
 
-    logger.info(f"Val_loss: {valid_loss_mean:.6f} Val_acc: {valid_acc_mean:.6f}")
+    logger.info(f"Val_acc: {acc:.6f}")
     # Save to tensorboard
-    args.writer.add_scalar("val_loss_epoch", valid_loss_mean, epoch + 1)
-    args.writer.add_scalar("val_acc_epoch", valid_acc_mean, epoch + 1)
+    args.writer.add_scalar("val_acc_epoch", valid_acc, epoch + 1)
 
     # Endding word for CI/CD
     logger.info("Finished Validation...")
@@ -349,23 +347,23 @@ if __name__ == "__main__":
     # Separate batch_norm parameters from others; do not do weight decay for batch_norm parameters to improve the generalizability
     optimizer_list = {
         "sgd": torch.optim.SGD(
-            params=backbone_paras_wo_bn,
+            params=model.parameters(),
             weight_decay=args.weight_decay,
             lr=args.lr,
             momentum=0.9,
         ),
         "adam": torch.optim.Adam(
-            params=backbone_paras_wo_bn,
+            params=model.parameters(),
             weight_decay=args.weight_decay,
             lr=args.lr,
         ),
         "Ranger": Ranger(
-            params=backbone_paras_wo_bn,
+            params=model.parameters(),
             weight_decay=args.weight_decay,
             lr=args.lr,
         ),
         "RAdam": RAdam(
-            params=backbone_paras_wo_bn,
+            params=model.parameters(),
             weight_decay=args.weight_decay,
             lr=args.lr,
         ),

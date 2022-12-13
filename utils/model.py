@@ -6,8 +6,8 @@ import torch
 import torch.nn.functional as F
 import torchmetrics
 
-sys.path.append(".")
 from backbone.resnet import ResNet, ResSENet
+from backbone.minimscnn import MiniMSCNN
 
 
 class ProtCNN(torch.nn.Module):
@@ -17,6 +17,7 @@ class ProtCNN(torch.nn.Module):
         model = {
             "resnet": ResNet(num_classes=num_classes, ratio=seq_max_len / 120),
             "resSEnet": ResSENet(num_classes=num_classes),
+            "MiniMSCNN": MiniMSCNN(num_classes=num_classes),
         }
         # assert backbone in model.keys()
         print("Using Model:", backbone)
