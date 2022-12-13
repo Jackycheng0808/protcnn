@@ -13,61 +13,88 @@ from utils.optimizer import Ranger, RAdam
 
 import argparse
 
+
 def parse_args():
     """Parse input arguments."""
     parser = argparse.ArgumentParser(
-        description='gene sequence classifier with CNN model')
+        description="gene sequence classifier with CNN model"
+    )
     parser.add_argument(
-        '--output_version', dest='output_version',
-        help='String appended', type=str)
+        "--output_version", dest="output_version", help="String appended", type=str
+    )
     parser.add_argument(
-        '--data_dir', dest='data_dir', help='Directory path for data.',
-        default='./random_split', type=str)
+        "--data_dir",
+        dest="data_dir",
+        help="Directory path for data.",
+        default="./random_split",
+        type=str,
+    )
     parser.add_argument(
-        '--train_dir', dest='train_dir', help='Directory path for training data.',
-        default='./random_split/train', type=str)
+        "--train_dir",
+        dest="train_dir",
+        help="Directory path for training data.",
+        default="./random_split/train",
+        type=str,
+    )
     parser.add_argument(
-        '--val_dir', dest='val_dir', help='Directory path for validation data.',
-        default='./random_split/val', type=str)
+        "--val_dir",
+        dest="val_dir",
+        help="Directory path for validation data.",
+        default="./random_split/val",
+        type=str,
+    )
     parser.add_argument(
-        '--backbone', dest='backbone', help='Model backbone',
-        default='', type=str)
+        "--backbone", dest="backbone", help="Model backbone", default="", type=str
+    )
     parser.add_argument(
-        '--snapshot', dest='snapshot', help='Path of model snapshot.',
-        default='', type=str)
+        "--snapshot",
+        dest="snapshot",
+        help="Path of model snapshot.",
+        default="",
+        type=str,
+    )
     parser.add_argument(
-        '--num_epochs', dest='num_epochs',
-        help='Maximum number of training epochs.',
-        default=10, type=int)
+        "--num_epochs",
+        dest="num_epochs",
+        help="Maximum number of training epochs.",
+        default=10,
+        type=int,
+    )
     parser.add_argument(
-        '--batch_size', dest='batch_size', help='Batch size.',
-        default=1, type=int)
+        "--batch_size", dest="batch_size", help="Batch size.", default=1, type=int
+    )
+    parser.add_argument("--optimizer", default="adam", type=str)
     parser.add_argument(
-        '--optimizer', default='adam', type=str)
+        "--lr", dest="lr", help="Base learning rate.", default=0.0001, type=float
+    )
+    parser.add_argument("--early_stop", type=bool, default=False)
     parser.add_argument(
-        '--lr', dest='lr', help='Base learning rate.',
-        default=0.0001, type=float)
+        "--scheduler", default=False, type=lambda x: (str(x).lower() == "true")
+    )
     parser.add_argument(
-        '--early_stop', type=bool, default=False)
+        "--steps_per_shot",
+        dest="steps_per_shot",
+        help="save checkpoints every given steps",
+        default=200,
+        type=int,
+    )
     parser.add_argument(
-        '--scheduler', default=False, type=lambda x: (str(x).lower() == 'true'))
+        "--save_checkpoint",
+        dest="save_checkpoint",
+        help="Directory path to save checkpoint.",
+        default="./output",
+        type=str,
+    )
     parser.add_argument(
-        '--steps_per_shot', dest='steps_per_shot', help='save checkpoints every given steps',
-        default= 200, type=int)
-    parser.add_argument(
-        '--save_checkpoint', dest='save_checkpoint', help='Directory path to save checkpoint.',
-        default='./output', type=str)
-    parser.add_argument(
-        '--seq_max_len', help='maximum length of sequence including for training', type=int, default=120)
-    parser.add_argument(
-        '--weight_decay', default=5e-6, type=float)
-    parser.add_argument(
-        '--loss_function', type=str, default='categorical')
-    parser.add_argument(
-        '--num_workers', type=int, default=0)
-    parser.add_argument(
-        '--seed', type=int, default=0)
-    
+        "--seq_max_len",
+        help="maximum length of sequence including for training",
+        type=int,
+        default=120,
+    )
+    parser.add_argument("--weight_decay", default=5e-6, type=float)
+    parser.add_argument("--loss_function", type=str, default="categorical")
+    parser.add_argument("--num_workers", type=int, default=0)
+    parser.add_argument("--seed", type=int, default=0)
 
     args = parser.parse_args()
 
@@ -75,13 +102,13 @@ def parse_args():
 
 
 def train(model, data_loader, crit, optimizer, scheduler, epoch, args, device):
-    logger.info('Starting training...')
+    logger.info("Starting training...")
 
     model.train()
 
-    for iter, batch in enumerate(data_loader['train']):
-        # Data preprocess    
-        x, y = batch['sequence'], batch['target'] 
+    for iter, batch in enumerate(data_loader["train"]):
+        # Data preprocess
+        x, y = batch["sequence"], batch["target"]
         x, y = x.to(device), y.to(device)
         # Prediction
         y_hat = model(x)
@@ -92,7 +119,6 @@ def train(model, data_loader, crit, optimizer, scheduler, epoch, args, device):
         train_acc = torchmetrics.Accuracy().to(device)
         acc = train_acc(pred, y)
 
-
         # Backward propagation
         optimizer.zero_grad()
         loss.backward()
@@ -100,20 +126,34 @@ def train(model, data_loader, crit, optimizer, scheduler, epoch, args, device):
         optimizer.step()
 
         # Save checkpoint every 200 iterations
-        if (iter+1) % args.steps_per_shot == 0:
-            logger.info(f'Epoch {epoch+1}/{args.num_epochs}, Iter {iter+1} Train_loss: {loss:.6f} Train_acc: {acc:.6f}')
-            torch.save({
-                'model_state_dict': model.state_dict(),
-                }, 
-            args.snapshot_folder + '/' + 'epoch_' + str(epoch+1) + "iter_"+ f'{iter+1}'+ '.pth')
+        if (iter + 1) % args.steps_per_shot == 0:
+            logger.info(
+                f"Epoch {epoch+1}/{args.num_epochs}, Iter {iter+1} Train_loss: {loss:.6f} Train_acc: {acc:.6f}"
+            )
+            torch.save(
+                {
+                    "model_state_dict": model.state_dict(),
+                },
+                args.snapshot_folder
+                + "/"
+                + "epoch_"
+                + str(epoch + 1)
+                + "iter_"
+                + f"{iter+1}"
+                + ".pth",
+            )
 
             # Save to tensorboard
-            args.writer.add_scalar('train_loss_step', loss, epoch*len(data_loader['train'])+iter)
-            args.writer.add_scalar('train_acc_step', acc, epoch*len(data_loader['train'])+iter)
+            args.writer.add_scalar(
+                "train_loss_step", loss, epoch * len(data_loader["train"]) + iter
+            )
+            args.writer.add_scalar(
+                "train_acc_step", acc, epoch * len(data_loader["train"]) + iter
+            )
 
             # Step val_loss
-            for _, batch in enumerate(data_loader['dev']):
-                x_val, y_val = batch['sequence'], batch['target'] 
+            for _, batch in enumerate(data_loader["dev"]):
+                x_val, y_val = batch["sequence"], batch["target"]
                 x_val, y_val = x_val.to(device), y_val.to(device)
                 y_hat_val = model(x_val)
                 loss_val = crit(y_hat_val, y_val)
@@ -124,25 +164,30 @@ def train(model, data_loader, crit, optimizer, scheduler, epoch, args, device):
                 break
 
             # Save to tensorboard
-            args.writer.add_scalar('val_loss_step', loss_val, epoch*len(data_loader['train'])+iter)
-            args.writer.add_scalar('val_acc_step', acc_val, epoch*len(data_loader['train'])+iter)
+            args.writer.add_scalar(
+                "val_loss_step", loss_val, epoch * len(data_loader["train"]) + iter
+            )
+            args.writer.add_scalar(
+                "val_acc_step", acc_val, epoch * len(data_loader["train"]) + iter
+            )
 
     if args.scheduler:
         scheduler.step()
 
     # Endding word for CI/CD
-    logger.info('Finished training...')
+    logger.info("Finished training...")
+
 
 @torch.no_grad()
 def validate(model, data_loader, crit, epoch, args, device):
-    logger.info('Starting validation...')
+    logger.info("Starting validation...")
 
     model.eval()
-    loss_sum = .0
-    acc_sum = .0
+    loss_sum = 0.0
+    acc_sum = 0.0
 
-    for iter, batch in enumerate(data_loader):    
-        x, y = batch['sequence'], batch['target'] 
+    for iter, batch in enumerate(data_loader):
+        x, y = batch["sequence"], batch["target"]
         x, y = x.to(device), y.to(device)
         y_hat = model(x)
         loss = crit(y_hat, y)
@@ -157,13 +202,14 @@ def validate(model, data_loader, crit, epoch, args, device):
     valid_loss_mean = loss_sum / iter
     valid_acc_mean = acc_sum / iter
 
-    logger.info(f'Val_loss: {valid_loss_mean:.6f} Val_acc: {valid_acc_mean:.6f}')
+    logger.info(f"Val_loss: {valid_loss_mean:.6f} Val_acc: {valid_acc_mean:.6f}")
     # Save to tensorboard
-    args.writer.add_scalar('val_loss_epoch', valid_loss_mean, epoch+1)
-    args.writer.add_scalar('val_acc_epoch', valid_acc_mean, epoch+1)
+    args.writer.add_scalar("val_loss_epoch", valid_loss_mean, epoch + 1)
+    args.writer.add_scalar("val_acc_epoch", valid_acc_mean, epoch + 1)
 
     # Endding word for CI/CD
-    logger.info('Finished Validation...')
+    logger.info("Finished Validation...")
+
 
 def separate_irse_bn_paras(modules):
     if not isinstance(modules, list):
@@ -171,18 +217,19 @@ def separate_irse_bn_paras(modules):
     paras_only_bn = []
     paras_wo_bn = []
     for layer in modules:
-        if 'model' in str(layer.__class__):
+        if "model" in str(layer.__class__):
             continue
-        if 'container' in str(layer.__class__):
+        if "container" in str(layer.__class__):
             continue
         else:
-            if 'BatchNorm1d' in str(layer.__class__):
+            if "BatchNorm1d" in str(layer.__class__):
                 paras_only_bn.extend([*layer.parameters()])
             else:
                 paras_wo_bn.extend([*layer.parameters()])
     return paras_only_bn, paras_wo_bn
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
 
     ###  initial arguments
     args = parse_args()
@@ -193,30 +240,33 @@ if __name__ == '__main__':
     batch_size = args.batch_size
     epochs = args.num_epochs
     seed = args.seed
-    # seq_max_len = 120 
+    # seq_max_len = 120
 
     # Initialize saving folder
-    writer_folder = 'output/writer/{}'.format(args.output_version)
-    snapshot_folder = 'output/snapshots/{}'.format(args.output_version)
+    writer_folder = "output/writer/{}".format(args.output_version)
+    snapshot_folder = "output/snapshots/{}".format(args.output_version)
     writer = SummaryWriter(writer_folder)
     args.writer = writer
     args.snapshot_folder = snapshot_folder
     args.writer_folder = writer_folder
-    
-    if not os.path.exists(snapshot_folder): # add folder if output directory doesn't exist
+
+    if not os.path.exists(
+        snapshot_folder
+    ):  # add folder if output directory doesn't exist
         os.makedirs(snapshot_folder)
-        with open(os.path.join(snapshot_folder, "log.txt"), 'w') as fp:
+        with open(os.path.join(snapshot_folder, "log.txt"), "w") as fp:
             pass
 
     if not os.path.exists(writer_folder):
         os.makedirs(writer_folder)
-        
 
     # Set up logging
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger()
     logger.setLevel(logging.INFO)
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    formatter = logging.Formatter(
+        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    )
     log_file = f"{snapshot_folder}/log.txt"
     file_handler = logging.FileHandler(log_file)
     file_handler.setLevel(logging.INFO)
@@ -224,11 +274,11 @@ if __name__ == '__main__':
     logger.addHandler(file_handler)
 
     # Print paths
-    logger.info('Log file is %s' % log_file)
-    logger.info('Data path is %s' % data_dir)
-    logger.info('Export path is %s' % args.save_checkpoint)
-    
-    pl.seed_everything(seed) # set seed for reproducity
+    logger.info("Log file is %s" % log_file)
+    logger.info("Data path is %s" % data_dir)
+    logger.info("Export path is %s" % args.save_checkpoint)
+
+    pl.seed_everything(seed)  # set seed for reproducity
 
     ###  data preprocessing
     train_data, train_targets = tools.reader(train_dir, data_dir)
@@ -238,82 +288,94 @@ if __name__ == '__main__':
     num_classes = len(fam2label)
 
     ###  data loading
-    train_dataset = SequenceDataset(word2id, fam2label, args.seq_max_len, data_dir, "train")
+    train_dataset = SequenceDataset(
+        word2id, fam2label, args.seq_max_len, data_dir, "train"
+    )
     dev_dataset = SequenceDataset(word2id, fam2label, args.seq_max_len, data_dir, "dev")
-    test_dataset = SequenceDataset(word2id, fam2label, args.seq_max_len, data_dir, "test")
+    test_dataset = SequenceDataset(
+        word2id, fam2label, args.seq_max_len, data_dir, "test"
+    )
 
     dataloaders = {}
-    dataloaders['train'] = torch.utils.data.DataLoader(
-        train_dataset, 
-        batch_size=batch_size, 
+    dataloaders["train"] = torch.utils.data.DataLoader(
+        train_dataset,
+        batch_size=batch_size,
         shuffle=True,
         num_workers=num_workers,
     )
-    dataloaders['dev'] = torch.utils.data.DataLoader(
+    dataloaders["dev"] = torch.utils.data.DataLoader(
         dev_dataset,
-        batch_size=batch_size, 
+        batch_size=batch_size,
         shuffle=False,
         num_workers=num_workers,
     )
-    dataloaders['test'] = torch.utils.data.DataLoader(
+    dataloaders["test"] = torch.utils.data.DataLoader(
         test_dataset,
-        batch_size=batch_size, 
+        batch_size=batch_size,
         shuffle=False,
         num_workers=num_workers,
     )
 
     ### model loading
-    model = ProtCNN(num_classes, backbone = args.backbone, seq_max_len = args.seq_max_len)
-    logger.info('Model backbone is %s' % args.backbone)
+    model = ProtCNN(num_classes, backbone=args.backbone, seq_max_len=args.seq_max_len)
+    logger.info("Model backbone is %s" % args.backbone)
 
-    if not args.snapshot == '':
+    if not args.snapshot == "":
         saved_state_dict = torch.load(args.snapshot)
         model.load_state_dict(saved_state_dict["state_dict"])
-        logger.info('Loaded model from %s' % args.snapshot)
+        logger.info("Loaded model from %s" % args.snapshot)
 
     ### model training
     # Log training details
-    logger.info('Training optimizer: %s' % args.optimizer)
-    logger.info('Training learning rate: %g' % args.lr)
-    logger.info('Training loss function: %s' % args.loss_function)
-    logger.info('Training epochs: %d' % epochs)
-    logger.info('Training batch size: %d' % batch_size)
-    logger.info('Training weight decay: %g' % args.weight_decay)
+    logger.info("Training optimizer: %s" % args.optimizer)
+    logger.info("Training learning rate: %g" % args.lr)
+    logger.info("Training loss function: %s" % args.loss_function)
+    logger.info("Training epochs: %d" % epochs)
+    logger.info("Training batch size: %d" % batch_size)
+    logger.info("Training weight decay: %g" % args.weight_decay)
 
-    device = torch.device(f"cuda:0" if torch.cuda.is_available() else "cpu") 
+    device = torch.device(f"cuda:0" if torch.cuda.is_available() else "cpu")
     model.to(device)
 
     # Choose loss function
-    assert args.loss_function in ['categorical']
-    if args.loss_function == 'categorical':
+    assert args.loss_function in ["categorical"]
+    if args.loss_function == "categorical":
         crit = F.cross_entropy
-    
+
     backbone_paras_only_bn, backbone_paras_wo_bn = separate_irse_bn_paras(model)
 
     # Choose optimizer and scheduler
     # Separate batch_norm parameters from others; do not do weight decay for batch_norm parameters to improve the generalizability
-    optimizer_list = {'sgd' :torch.optim.SGD(params = backbone_paras_wo_bn, 
-                                                weight_decay = args.weight_decay, 
-                                                lr=args.lr, 
-                                                momentum=0.9, 
-                                                ),
-                        'adam' : torch.optim.Adam(params = backbone_paras_wo_bn, 
-                                                weight_decay = args.weight_decay, 
-                                                lr=args.lr, 
-                                                ),
-                        'Ranger': Ranger(params = backbone_paras_wo_bn, 
-                                                weight_decay = args.weight_decay, 
-                                                lr=args.lr, 
-                                                ),
-                        'RAdam': RAdam(params = backbone_paras_wo_bn, 
-                                                weight_decay = args.weight_decay, 
-                                                lr=args.lr, 
-                                                )}
+    optimizer_list = {
+        "sgd": torch.optim.SGD(
+            params=backbone_paras_wo_bn,
+            weight_decay=args.weight_decay,
+            lr=args.lr,
+            momentum=0.9,
+        ),
+        "adam": torch.optim.Adam(
+            params=backbone_paras_wo_bn,
+            weight_decay=args.weight_decay,
+            lr=args.lr,
+        ),
+        "Ranger": Ranger(
+            params=backbone_paras_wo_bn,
+            weight_decay=args.weight_decay,
+            lr=args.lr,
+        ),
+        "RAdam": RAdam(
+            params=backbone_paras_wo_bn,
+            weight_decay=args.weight_decay,
+            lr=args.lr,
+        ),
+    }
 
     optimizer = optimizer_list[args.optimizer]
-    scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=[1, 3, 5], gamma=0.5)
+    scheduler = torch.optim.lr_scheduler.MultiStepLR(
+        optimizer, milestones=[1, 3, 5], gamma=0.5
+    )
 
     # Train model
     for epoch in range(args.num_epochs):
         train(model, dataloaders, crit, optimizer, scheduler, epoch, args, device)
-        validate(model, dataloaders['dev'], crit, epoch, args, device)
+        validate(model, dataloaders["dev"], crit, epoch, args, device)

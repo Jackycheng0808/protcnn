@@ -88,17 +88,44 @@ After downloading and pre-process, the data directory is structured as:
 python utils/analysis.py
 ```
 
-## Training and Testing
+## Training
 ---------------
-### Train Model 
+### Usage
 
 ```
-./train_sh/train.sh
+python train.py --help 
 ```
 
-### Evaluation Model
+### Example Usage
+
+Train resnet
+
 ```
-./test_sh/test.sh
+python train.py --output_version resnet --data_dir ./random_split --train_dir train --val_dir val --num_epochs 10 --batch_size 256 \
+        --backbone resSEnet --optimizer RAdam --early_stop False --lr 0.005 --weight_decay 0 --loss_function categorical --num_workers 8 
+```
+
+Train senet
+
+```
+python train.py --output_version senet --data_dir ./random_split --train_dir train --val_dir val --num_epochs 10 --batch_size 256 \
+        --backbone senet --optimizer RAdam --early_stop False --lr 0.005 --weight_decay 0 --loss_function categorical --num_workers 8 
+```
+
+## Evaluate (Test) 
+---------------
+### Usage
+
+```
+python test.py --help 
+```
+
+### Example Usage
+
+test trained model
+
+```
+python test.py --model /home/workspace/protCNN/output/snapshots/seNet_test/epoch_8iter_1001.pth --backbone resnet --data_dir ./random_split --train_dir train --test_dir test --batch_size 256 --seq_max_len 120 --num_workers 8 
 ```
 
 ## Result

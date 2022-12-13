@@ -4,6 +4,6 @@ python test.py \
         --data_dir ./random_split \
         --train_dir train \
         --test_dir test \
-        --batch_size 512 \
+        --batch_size 256 \
         --seq_max_len 120\
         --num_workers 8 \

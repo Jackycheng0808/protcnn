@@ -1,31 +1,34 @@
+import logging
+import sys
+
+import pytorch_lightning as pl
 import torch
 import torch.nn.functional as F
-import pytorch_lightning as pl
 import torchmetrics
-import sys
-import logging
 
-sys.path.append('.')
+sys.path.append(".")
 from backbone.resnet import ResNet, ResSENet
 
+
 class ProtCNN(torch.nn.Module):
-    
-    def __init__(self, num_classes = 17930, seq_max_len = 120, backbone = "resnet"):
+    def __init__(self, num_classes=17930, seq_max_len=120, backbone="resnet"):
         super().__init__()
 
-        model = {"resnet": ResNet(num_classes = num_classes, ratio = seq_max_len/120),
-                 "resSEnet": ResSENet(num_classes = num_classes)
-                }
+        model = {
+            "resnet": ResNet(num_classes=num_classes, ratio=seq_max_len / 120),
+            "resSEnet": ResSENet(num_classes=num_classes),
+        }
         # assert backbone in model.keys()
         print("Using Model:", backbone)
         self.model = model[backbone]
-        
+
     def forward(self, x):
         return self.model(x.float())
-    
-# # lightning version    
+
+
+# # lightning version
 # class ProtCNN_lightning(pl.LightningModule):
-    
+
 #     def __init__(self, num_classes, backbone = "resnet", lr = 1e-4 , weight_decay = 0.01, optimizer = "adam", ):
 #         super().__init__()
 
@@ -43,16 +46,16 @@ class ProtCNN(torch.nn.Module):
 #         self.lr = lr
 #         self.optimizer = optimizer
 #         self.weight_decay = weight_decay
-        
+
 #     def forward(self, x):
 #         return self.model(x.float())
-    
+
 #     def training_step(self, batch, batch_idx):
 #         x, y = batch['sequence'], batch['target']
 #         y_hat = self(x)
 #         loss = F.cross_entropy(y_hat, y)
 #         self.log('train_loss', loss, on_step=True, on_epoch=True)
-        
+
 #         pred = torch.argmax(y_hat, dim=1)
 #         acc = self.train_acc(pred, y)
 #         self.log('train_acc', self.train_acc, on_step=True, on_epoch=True)
@@ -60,14 +63,14 @@ class ProtCNN(torch.nn.Module):
 #         logging.info(f"train_loss:{loss:.4f}")
 
 #         return loss
-    
+
 #     def validation_step(self, batch, batch_idx):
 #         x, y = batch['sequence'], batch['target']
 #         y_hat = self(x)
 #         loss = F.cross_entropy(y_hat, y)
 #         self.log('valid_loss', loss, on_step=False, on_epoch=True)
 
-#         pred = torch.argmax(y_hat, dim=1)        
+#         pred = torch.argmax(y_hat, dim=1)
 #         acc = self.valid_acc(pred, y)
 #         self.log('valid_acc', self.valid_acc, on_step=False, on_epoch=True)
 
@@ -75,18 +78,18 @@ class ProtCNN(torch.nn.Module):
 #         logging.info(f"valid_loss:{loss:.4f}")
 
 #         return acc
-    
+
 #     def test_step(self, batch, batch_idx):
 #         x, y = batch['sequence'], batch['target']
 #         y_hat = self(x)
-#         pred = torch.argmax(y_hat, dim=1)        
+#         pred = torch.argmax(y_hat, dim=1)
 #         acc = self.test_acc(pred, y)
 #         self.log('test_acc', self.test_acc, on_step=False, on_epoch=True)
 
 #         logging.info(f"test_acc:{acc:.4f}")
 
 #         return acc
-        
+
 #     def configure_optimizers(self):
 #         if self.optimizer == "adam":
 #             optimizer = torch.optim.Adam(self.parameters(), lr = self.lr)
