@@ -13,7 +13,7 @@ class SequenceDataset(torch.utils.data.Dataset):
         self.fam2label = fam2label
         self.max_len = max_len
 
-        self.data, self.label = tools.reader(split, data_path)
+        self.data, self.label = tools.reader_slim(split, data_path)
 
     def __len__(self):
         return len(self.data)

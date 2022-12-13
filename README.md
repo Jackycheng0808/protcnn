@@ -33,7 +33,7 @@ docker exec -it [containerID] bash
 ```
 Project directory structured
 ```
-+-- backbone/
++-- assets/
 |   +-- family_distribution.png
 |   +-- ...
 +-- backbone/
@@ -93,7 +93,16 @@ python utils/analysis.py
 ### Usage
 
 ```
-python train.py --help 
+usage: train.py [-h] [--output_version OUTPUT_VERSION] [--data_dir DATA_DIR]
+                [--train_dir TRAIN_DIR] [--val_dir VAL_DIR]
+                [--backbone BACKBONE] [--snapshot SNAPSHOT]
+                [--num_epochs NUM_EPOCHS] [--batch_size BATCH_SIZE]
+                [--optimizer OPTIMIZER] [--lr LR] [--early_stop EARLY_STOP]
+                [--scheduler SCHEDULER] [--steps_per_shot STEPS_PER_SHOT]
+                [--save_checkpoint SAVE_CHECKPOINT]
+                [--seq_max_len SEQ_MAX_LEN] [--weight_decay WEIGHT_DECAY]
+                [--loss_function LOSS_FUNCTION] [--num_workers NUM_WORKERS]
+                [--seed SEED]
 ```
 
 ### Example Usage
@@ -116,8 +125,13 @@ python train.py --output_version senet --data_dir ./random_split --train_dir tra
 ---------------
 ### Usage
 
-```
-python test.py --help 
+```shell
+usage: test.py [-h] --model MODEL [--backbone BACKBONE]
+               [--save_result SAVE_RESULT] [--data_dir DATA_DIR]
+               [--train_dir TRAIN_DIR] [--test_dir TEST_DIR]
+               [--batch_size BATCH_SIZE] [--seq_max_len SEQ_MAX_LEN]
+               [--use_gpu USE_GPU] [--gpu GPU] [--num_workers NUM_WORKERS]
+               [--seed SEED]
 ```
 
 ### Example Usage

@@ -38,6 +38,14 @@ if __name__ == "__main__":
     partition_frames = [read_sharded_partition(d, DATA_PATH) for d in partition_dirs]
     df_trn, df_vld, df_tst = partition_frames
 
+    trn_fams = set(df_trn.family_accession.unique())
+    vld_fams = set(df_vld.family_accession.unique())
+    trn_fams_exc = trn_fams - vld_fams
+    df_trn[df_trn.family_accession.isin(trn_fams_exc)].groupby(
+        "family_accession"
+    ).size().sort_values(ascending=False)
+    print(df_trn)
+
     print("Training dataset")
     print("-" * 60)
     print(df_trn.head())

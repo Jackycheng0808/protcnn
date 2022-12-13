@@ -236,6 +236,7 @@ if __name__ == "__main__":
 
     data_dir = args.data_dir
     train_dir = args.train_dir
+    val_dir = args.val_dir
     num_workers = args.num_workers
     batch_size = args.batch_size
     epochs = args.num_epochs
@@ -281,7 +282,7 @@ if __name__ == "__main__":
     pl.seed_everything(seed)  # set seed for reproducity
 
     ###  data preprocessing
-    train_data, train_targets = tools.reader(train_dir, data_dir)
+    train_data, train_targets = tools.reader_slim(train_dir, data_dir)
 
     word2id = tools.build_vocab(train_data)
     fam2label = tools.build_labels(train_targets)
