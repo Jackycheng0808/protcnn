@@ -8,6 +8,7 @@ import torchmetrics
 
 from backbone.resnet import ResNet, ResSENet
 from backbone.minimscnn import MiniMSCNN
+from backbone.mobilenet import MobileNetV2
 
 
 class ProtCNN(torch.nn.Module):
@@ -16,10 +17,14 @@ class ProtCNN(torch.nn.Module):
 
         model = {
             "resnet": ResNet(num_classes=num_classes, ratio=seq_max_len / 120),
-            "resSEnet": ResSENet(num_classes=num_classes),
+            "resSEnet": ResSENet(num_classes=num_classes, ratio=seq_max_len / 120),
             "MiniMSCNN": MiniMSCNN(num_classes=num_classes),
+            "MobileNetV2": MobileNetV2(
+                input_channel=seq_max_len,
+                num_classes=num_classes,
+            ),
         }
-        # assert backbone in model.keys()
+        assert backbone in model.keys()
         print("Using Model:", backbone)
         self.model = model[backbone]
 

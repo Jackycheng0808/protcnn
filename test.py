@@ -79,6 +79,7 @@ if __name__ == "__main__":
         exit()
     data_dir = args.data_dir
     train_dir = args.train_dir
+    test_dir = args.test_dir
     num_workers = args.num_workers
     batch_size = args.batch_size
     seed = args.seed

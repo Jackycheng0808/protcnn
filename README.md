@@ -109,23 +109,28 @@ usage: train.py [-h] [--output_version OUTPUT_VERSION] [--data_dir DATA_DIR]
 
 Train resnet
 
-```
+```python
 python train.py --output_version resnet --data_dir ./random_split --train_dir train --val_dir val --num_epochs 10 --batch_size 256 \
         --backbone resSEnet --optimizer RAdam --early_stop False --lr 0.005 --weight_decay 0 --loss_function categorical --num_workers 8 
 ```
 
 Train senet
 
-```
+```python
 python train.py --output_version senet --data_dir ./random_split --train_dir train --val_dir val --num_epochs 10 --batch_size 256 \
         --backbone senet --optimizer RAdam --early_stop False --lr 0.005 --weight_decay 0 --loss_function categorical --num_workers 8 
 ```
 
+Visualize
+
+```
+tensorboard --logdir "./output/writer"
+```
 ## Evaluate (Test) 
 ---------------
 ### Usage
 
-```shell
+```
 usage: test.py [-h] --model MODEL [--backbone BACKBONE]
                [--save_result SAVE_RESULT] [--data_dir DATA_DIR]
                [--train_dir TRAIN_DIR] [--test_dir TEST_DIR]
@@ -138,12 +143,18 @@ usage: test.py [-h] --model MODEL [--backbone BACKBONE]
 
 test trained model
 
-```
+```python
 python test.py --model /home/workspace/protCNN/output/snapshots/seNet_test/epoch_8iter_1001.pth --backbone resnet --data_dir ./random_split --train_dir train --test_dir test --batch_size 256 --seq_max_len 120 --num_workers 8 
 ```
 
-## Result
+## Result (with adam optimizer)
 ---------------
+
+|       |Params|  Top1  | Top 5 |
+|:-----:|:----:| :----: | :----:|
+| resnet |137M| 0.9668  | 0.9827 |
+| resSEnet |137M| 0.9668  | 0.9830 |
+| mobilenetV2 |18 M| 0.9504  | 0.9711 |
 
 ## Reference
 ---------------

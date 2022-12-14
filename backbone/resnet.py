@@ -27,7 +27,7 @@ class ResNet(torch.nn.Module):
     def __init__(self, num_classes=17930, ratio=1):
         super().__init__()
 
-        last_input = round(7680 * ratio)
+        last_channel = round(7680 * ratio)
 
         # Initialize the required layers
         self.conv1 = torch.nn.Conv1d(22, 128, kernel_size=1, padding=0, bias=False)
@@ -36,7 +36,7 @@ class ResNet(torch.nn.Module):
         self.res2 = ResidualBlock(128, 128, dilation=3)
 
         self.maxPool = torch.nn.MaxPool1d(3, stride=2, padding=1)
-        self.linear = torch.nn.Linear(last_input, num_classes)
+        self.linear = torch.nn.Linear(last_channel, num_classes)
 
     def forward(self, x):
         # Execute the required layers and functions
@@ -63,7 +63,7 @@ class ResSENet(torch.nn.Module):
     def __init__(self, num_classes=17930, ratio=1):
         super().__init__()
 
-        last_input = round(7680 * ratio)
+        last_channel = round(7680 * ratio)
 
         # Initialize the required layers
         self.conv1 = torch.nn.Conv1d(22, 128, kernel_size=1, padding=0, bias=False)
@@ -72,7 +72,7 @@ class ResSENet(torch.nn.Module):
         self.res2 = ResidualSEBlock(128, 128, dilation=3)
 
         self.maxPool = torch.nn.MaxPool1d(3, stride=2, padding=1)
-        self.linear = torch.nn.Linear(last_input, num_classes)
+        self.linear = torch.nn.Linear(last_channel, num_classes)
 
     def forward(self, x):
         # Execute the required layers and functions

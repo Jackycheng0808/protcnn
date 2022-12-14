@@ -1,5 +1,5 @@
 python test.py \
-        --model /home/workspace/protCNN/output/snapshots/seNet_test/epoch_8iter_1001.pth\
+        --model /home/workspace/protCNN/output/snapshots/resnet_test/epoch_2iter_1801.pth\
         --backbone resnet \
         --data_dir ./random_split \
         --train_dir train \

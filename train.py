@@ -1,5 +1,4 @@
 from utils.dataloader import SequenceDataset
-from pytorch_lightning.callbacks import ModelCheckpoint, EarlyStopping
 from utils import tools
 from utils.model import ProtCNN
 import pytorch_lightning as pl
@@ -10,6 +9,7 @@ import torch.nn.functional as F
 import torchmetrics
 from tensorboardX import SummaryWriter
 from utils.optimizer import Ranger, RAdam
+from torchinfo import summary
 
 import argparse
 
@@ -280,7 +280,7 @@ if __name__ == "__main__":
     pl.seed_everything(seed)  # set seed for reproducity
 
     ###  data preprocessing
-    train_data, train_targets = tools.reader_slim(train_dir, data_dir)
+    train_data, train_targets = tools.reader(train_dir, data_dir)
 
     word2id = tools.build_vocab(train_data)
     fam2label = tools.build_labels(train_targets)
@@ -317,6 +317,7 @@ if __name__ == "__main__":
 
     ### model loading
     model = ProtCNN(num_classes, backbone=args.backbone, seq_max_len=args.seq_max_len)
+    print(summary(model, input_size=(batch_size, 22, args.seq_max_len)))
     logger.info("Model backbone is %s" % args.backbone)
 
     if not args.snapshot == "":
@@ -341,7 +342,7 @@ if __name__ == "__main__":
     if args.loss_function == "categorical":
         crit = F.cross_entropy
 
-    backbone_paras_only_bn, backbone_paras_wo_bn = separate_irse_bn_paras(model)
+    # backbone_paras_only_bn, backbone_paras_wo_bn = separate_irse_bn_paras(model)
 
     # Choose optimizer and scheduler
     # Separate batch_norm parameters from others; do not do weight decay for batch_norm parameters to improve the generalizability
