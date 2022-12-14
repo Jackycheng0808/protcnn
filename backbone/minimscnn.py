@@ -3,7 +3,7 @@ from .layers.multiscale_block import ConvBlock, MultiScaleConvBlock
 
 
 class MiniMSCNN(torch.nn.Module):
-    def __init__(self, voc_size=22, num_classes=13072):
+    def __init__(self, voc_size=22, num_classes=17930):
         """
         Args:
           voc_size  (int): size of amino-acids vocabulary.

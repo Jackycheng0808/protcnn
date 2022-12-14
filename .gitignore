@@ -8,3 +8,4 @@ output/*
 ml-pipeline-refactoring.ipynb
 MLPipelineRefactoring.html
 MLPipelineRefactoring.pdf
+*.bundle

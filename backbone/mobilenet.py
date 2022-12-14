@@ -89,7 +89,7 @@ class MobileNetV2(nn.Module):
         self,
         input_channel=32,
         last_channel=1280,
-        num_classes=1000,
+        num_classes=17930,
         width_mult=1.0,
         inverted_residual_setting=None,
         round_nearest=8,
