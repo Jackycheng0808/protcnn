@@ -75,7 +75,7 @@ def parse_args():
         "--steps_per_shot",
         dest="steps_per_shot",
         help="save checkpoints every given steps",
-        default=200,
+        default=500,
         type=int,
     )
     parser.add_argument(

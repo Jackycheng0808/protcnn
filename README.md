@@ -4,7 +4,7 @@ This Repo is using various of CNN models to for Pfam Protein Sequence Annotation
 
 Model Inspired by ["Using Deep Learning to Annotate the Protein Universe"](https://www.biorxiv.org/content/10.1101/626507v3.full.pdf)
 
-Above 97% test accuracy trained by resNet with Adam optimizer.
+Achieve 96.6% test accuracy trained by resNet with Adam optimizer.
 
 ## Hardware
 -----------
@@ -22,13 +22,15 @@ To reproduce the result, there are three steps:
 
 ## Environment
 -----------
-### Docker Env
+### Docker Env 
 ```
+#Build image
 docker build -t "protcnn" .
 
+#Mount volume
 docker run -it --gpus all --network host -v [local dir]:[docker dir] --shm-size=32G -d --name [container name] protcnn
 
-// Execute container (Optional)
+// Execute container
 docker exec -it [containerID] bash
 ```
 Project directory structured
@@ -51,7 +53,6 @@ Project directory structured
 +-- utils/
 |   +-- analysis.py
 |   +-- dataloader.py
-|   +-- metrics.py
 |   +-- model.py
 |   +-- optimizer.py
 |   +-- tools.py

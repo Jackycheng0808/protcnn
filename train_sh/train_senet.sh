@@ -6,9 +6,9 @@ python train.py \
         --num_epochs 10 \
         --batch_size 256 \
         --backbone resSEnet \
-        --optimizer RAdam \
+        --optimizer adam \
         --early_stop False \
-        --lr 0.005 \
+        --lr 0.0001 \
         --weight_decay 0 \
         --loss_function categorical \
         --num_workers 8 \
