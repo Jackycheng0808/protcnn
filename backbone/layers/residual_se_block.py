@@ -1,6 +1,7 @@
 import torch
 import torch.nn.functional as F
 
+
 class SeBlock(torch.nn.Module):
     """
     1D SeBlock
